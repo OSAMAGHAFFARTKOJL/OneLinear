@@ -12,11 +12,21 @@ results_cache = {}
 def process_ai_request(input_text, job_id):
     AI71_API_KEY = "api71-api-2fcb29da-a589-4632-9e26-47a71786cd25"
     response = ""
+    prompt = (
+        input_text + " First, judge whether the person is a beginner or advanced based on the way they ask questions. "
+        "If the person is a beginner, give more detailed hints, and if advanced, give less concise hints. The answer "
+        "you give must have the following sections: 1. Give hints to solve the question but do not give the coding "
+        "solution. After it, give a two-line space. 2. Provide some real-world examples. Give only one example to explain "
+        "it. Don't give the code. After it, give a two-line space. 3. If the question is of beginner level, then give some "
+        "more hints that enhance the self-learning of the user, and if the question is advanced, then ignore this line. "
+        "After it, give a two-line space. 4. Provide the code solution to the question. After it, give a two-line space. "
+        "5. Mention the topic name to study to understand the question. After it, give a two-line space.'
+    )
     for chunk in AI71(AI71_API_KEY).chat.completions.create(
         model="tiiuae/falcon-180b-chat",
         messages=[
             {"role": "system", "content": "You are a helpful assistant for coding problems."},
-            {"role": "user", "content": input_text + " First, judge whether the person is a beginner or advanced based on the way they ask questions. If the person is a beginner, give more detailed hints, and if advanced, give less concise hints. The answer you give must have the following sections: 1. Give hints to solve the question but do not give the coding solution. After it, give a two-line space. 2. Provide some real-world examples. Give only one example to explain it. Don't give the code. After it, give a two-line space. 3. If the question is of beginner level, then give some more hints that enhance the self-learning of the user, and if the question is advanced, then ignore this line. After it, give a two-line space. 4. Provide the code solution to the question. After it, give a two-line space. 5. Mention the topic name to study to understand the question. After it, give a two-line space. Do not use the word "beginner" directly."}
+            {"role": "user", "content": prompt}
         ],
         stream=True,
     ):
