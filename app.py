@@ -25,7 +25,7 @@ def submit():
 def get_ai_response(prompt, option):
     try:
         response = ""
-        for chunk in ai71.AI71(AI71_API_KEY).chat.completions.create(
+        for chunk in ai71.AI71("api71-api-2fcb29da-a589-4632-9e26-47a71786cd25").chat.completions.create(
             model="tiiuae/falcon-180b-chat",
             messages=[
                 {
