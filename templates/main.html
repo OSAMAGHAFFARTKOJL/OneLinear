@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,6 +59,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header class="header">
@@ -85,6 +87,11 @@
                 <div class="answer-container">
                     <form id="questionForm">
                         <textarea id="answerTextarea" name="answer" placeholder="Write your question here..."></textarea>
+                        <select id="optionSelect" name="option">
+                            <option value="Math">Math</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                        </select>
                         <button type="submit" class="submit-btn">Submit</button>
                     </form>
                 </div>
@@ -99,7 +106,7 @@
                             <span class="text">Hints</span>
                             <button class="unlock-btn" data-hint="hint1">Unlock</button>
                         </div>
-                        <p id="hint1" class="hidden">{{hint1}}</p>
+                        <p id="hint1" class="hidden"></p>
                     </li>
                     <li class="hint-container">
                         <div class="hint-content">
@@ -107,7 +114,7 @@
                             <span class="text">Real World Example</span>
                             <button class="unlock-btn" data-hint="hint2">Unlock</button>
                         </div>
-                        <p id="hint2" class="hidden">{{hint2}}</p>
+                        <p id="hint2" class="hidden"></p>
                     </li>
                     <li class="hint-container">
                         <div class="hint-content">
@@ -115,7 +122,7 @@
                             <span class="text">Self-Learning</span>
                             <button class="unlock-btn" data-hint="hint3">Unlock</button>
                         </div>
-                        <p id="hint3" class="hidden">{{hint3}}</p>
+                        <p id="hint3" class="hidden"></p>
                     </li>
                     <li class="hint-container">
                         <div class="hint-content">
@@ -123,7 +130,7 @@
                             <span class="text">Solution</span>
                             <button class="unlock-btn" data-hint="hint4">Unlock</button>
                         </div>
-                        <p id="hint4" class="hidden">{{hint4}}</p>
+                        <p id="hint4" class="hidden"></p>
                     </li>
                     <li class="hint-container">
                         <div class="hint-content">
@@ -131,7 +138,7 @@
                             <span class="text">Topic</span>
                             <button class="unlock-btn" data-hint="hint5">Unlock</button>
                         </div>
-                        <p id="hint5" class="hidden">{{hint5}}</p>
+                        <p id="hint5" class="hidden"></p>
                     </li>
                 </ul>
             </section>
@@ -139,28 +146,33 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            $('#questionForm').on('submit', function(e) {
+        $(document).ready(function () {
+            $('#questionForm').on('submit', function (e) {
                 e.preventDefault();
                 $.ajax({
                     type: 'POST',
                     url: '/submit',
                     data: $(this).serialize(),
-                    success: function(response) {
-                        $('#hint1').text(response.hint1);
-                        $('#hint2').text(response.hint2);
-                        $('#hint3').text(response.hint3);
-                        $('#hint4').text(response.hint4);
-                        $('#hint5').text(response.hint5);
+                    success: function (response) {
+                        if (response.error) {
+                            alert(response.error);
+                        } else {
+                            $('#hint1').text(response.hint1).removeClass('hidden');
+                            $('#hint2').text(response.hint2).removeClass('hidden');
+                            $('#hint3').text(response.hint3).removeClass('hidden');
+                            $('#hint4').text(response.hint4).removeClass('hidden');
+                            $('#hint5').text(response.hint5).removeClass('hidden');
+                        }
                     }
                 });
             });
 
-            $('.unlock-btn').on('click', function() {
+            $('.unlock-btn').on('click', function () {
                 var hintId = $(this).data('hint');
                 $('#' + hintId).removeClass('hidden');
             });
         });
     </script>
 </body>
+
 </html>
