@@ -55,7 +55,7 @@ def process_ai_request(input_text, job_id):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('main.html')
 
 @app.route('/submit', methods=['POST'])
 def submit():
