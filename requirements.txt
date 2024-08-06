@@ -1,3 +1,4 @@
 Flask
+rq
+redis
 ai71
-Gunicorn
