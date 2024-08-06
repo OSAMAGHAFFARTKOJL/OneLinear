@@ -1,5 +1,4 @@
 from flask import Flask, request, render_template, jsonify
-from ai71 import AI71
 import threading
 import uuid
 
@@ -7,6 +6,25 @@ app = Flask(__name__)
 
 # In-memory cache for results
 results_cache = {}
+
+# Dummy AI71 class for simulation
+class AI71:
+    def __init__(self, api_key):
+        self.api_key = api_key
+
+    class chat:
+        @staticmethod
+        def completions_create(model, messages, stream):
+            # Simulate a streaming response for the sake of example
+            responses = [
+                {"choices": [{"delta": {"content": "Hint: Use trigonometric identities.\n\n"}}]},
+                {"choices": [{"delta": {"content": "Real-world example: Engineers use trigonometry in building designs.\n\n"}}]},
+                {"choices": [{"delta": {"content": "For beginners: Review basic trigonometric identities.\n\n"}}]},
+                {"choices": [{"delta": {"content": "Code solution: sin(x)cos(x) = 1/2 sin(2x)\n\n"}}]},
+                {"choices": [{"delta": {"content": "Topic: Trigonometry"}}]}
+            ]
+            for response in responses:
+                yield response
 
 def process_ai_request(input_text, job_id):
     AI71_API_KEY = "api71-api-2fcb29da-a589-4632-9e26-47a71786cd25"
@@ -21,7 +39,7 @@ def process_ai_request(input_text, job_id):
         After it, give a two-line space. 4. Provide the code solution to the question. After it, give a two-line space. 
         5. Mention the topic name to study to understand the question. After it, give a two-line space.'''
     )
-    for chunk in AI71(AI71_API_KEY).chat.completions.create(
+    for chunk in AI71(AI71_API_KEY).chat.completions_create(
         model="tiiuae/falcon-180b-chat",
         messages=[
             {"role": "system", "content": "You are a helpful assistant for coding problems."},
@@ -29,15 +47,15 @@ def process_ai_request(input_text, job_id):
         ],
         stream=True,
     ):
-        if chunk.choices[0].delta.content:
-            response += chunk.choices[0].delta.content
+        if chunk['choices'][0]['delta']['content']:
+            response += chunk['choices'][0]['delta']['content']
     
     x = response.split("\n\n")
     results_cache[job_id] = x
 
 @app.route('/')
 def index():
-    return render_template('main.html')
+    return render_template('index.html')
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -51,8 +69,7 @@ def get_results(job_id):
     if job_id in results_cache:
         result = results_cache[job_id]
         del results_cache[job_id]  # Clean up the cache
-        hint1, hint2, hint3, *hint4, hint5 = result
-        hint4 = "\n\n".join(hint4)
+        hint1, hint2, hint3, hint4, hint5 = result[:5]
         return jsonify({
             "status": "complete",
             "hint1": hint1,
