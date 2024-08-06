@@ -1,21 +1,12 @@
-
-
 {
   "version": 2,
   "builds": [
     {
       "src": "app.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "worker.py",
-      "use": "@vercel/python"
     }
   ],
   "routes": [
-    { "src": "/.*", "dest": "app.py" }
-  ],
-  "env": {
-    "REDIS_URL": "redis://localhost:6379"
-  }
+    { "src": "/(.*)", "dest": "app.py" }
+  ]
 }
