@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function checkStatus() {
+            $.get('/results/{{ job_id }}', function(data) {
+                if (data !== "Nay!") {
+                    $('body').html(data);
+                } else {
+                    setTimeout(checkStatus, 1000);
+                }
+            });
+        }
+        $(document).ready(function() {
+            setTimeout(checkStatus, 1000);
+        });
+    </script>
+</head>
+<body>
+    <h1>Processing your request...</h1>
+    <p>This may take a few moments. Please wait.</p>
+</body>
+</html>
