@@ -30,7 +30,7 @@ def get_ai_response(prompt, option):
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are a helpful assistant for {option} problems.Dont give answer to the problems orther than  {option}Dont give teh exact answer first and  provide meaningful responses only to highly valid queries and dont give resoponse to non-sensical or irrelevant inputs just say sorry it is irreelvant question"
+                    "content": f"You are a helpful assistant for only Math and coding problems.Dont give answer to the problems orther than  {option}.Dont give teh exact answer first and  provide meaningful responses only to highly valid queries and dont give resoponse to non-sensical or irrelevant inputs just say sorry it is irreelvant question"
                 },
                 {
                     "role": "user",
