@@ -1,165 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>OneLiner</title>
-        <link rel="stylesheet" href="static/style.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <style>
-                .hidden {
-            display: none;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function submitForm() {
+            var answer = $("#answer").val();
+            $.post("/submit", {answer: answer}, function(data) {
+                $("#result").html("<p>Processing your request... Please wait.</p>");
+                checkStatus(data.job_id);
+            });
+            return false;
         }
 
-        .hint-content {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 10px;
-            background-color: #f9f9f9;
-            transition: all 0.3s ease-in-out;
+        function checkStatus(jobId) {
+            $.get("/results/" + jobId, function(data) {
+                if (data.status === "complete") {
+                    $("#result").html(
+                        "<h2>Hints:</h2><p>" + data.hint1 + "</p>" +
+                        "<h2>Real-world Example:</h2><p>" + data.hint2 + "</p>" +
+                        "<h2>Additional Hints:</h2><p>" + data.hint3 + "</p>" +
+                        "<h2>Code Solution:</h2><pre>" + data.hint4 + "</pre>" +
+                        "<h2>Topic to Study:</h2><p>" + data.hint5 + "</p>"
+                    );
+                } else {
+                    setTimeout(function() { checkStatus(jobId); }, 2000);
+                }
+            });
         }
-
-        .hint-content .icon {
-            font-size: 24px;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-
-        .hint-content .text {
-            font-size: 18px;
-            font-weight: bold;
-            vertical-align: middle;
-        }
-
-        .hint-content .unlock-btn {
-            float: right;
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .hint-content .unlock-btn:hover {
-            background-color: #0056b3;
-        }
-
-        .hint-content p {
-            margin-top: 10px;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .hint-container {
-            margin-bottom: 20px;
-        }
-        </style>
+    </script>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="logo">
-                <h1>OneLiner</h1>
-            </div>
-            <nav>
-                <ul class="nav">
-                    <li class="nav-item"><a href="#" class="nav-link active">Home</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Explore</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Bookmark</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Create</a></li>
-                </ul>
-            </nav>
-        </header>
-
-        <div class="breadcrumb">
-            <a href="#">Math</a> / <a href="#">Trigonometry</a>
-        </div>
-
-        <main class="content">
-            <section class="problem">
-                <h2>Simplify sin(x)cos(x)</h2>
-                <p>Think of a trigonometric identity that can be used to simplify the given expression.</p>
-                <div class="answer-container">
-                    <form action="/submit" method="POST">
-                        <textarea id="answerTextarea" name="answer" placeholder="Write your question here...">{{Input}}</textarea>
-                        <button type="submit" class="submit-btn">Submit</button>
-                    </form>
-                </div>
-            </section>
-
-            <section class="hint">
-                <h3>Solution</h3>
-                <ul>
-                    <li>
-                        <div class="level">
-                            <span class="icon">💡</span>
-                            <span class="text">Hints &emsp; &emsp;</span>
-                            <button class="unlock-btn" data-hint="hint1">Unlock</button>
-                        </div>
-                        <p id="hint1" class="hidden">{{hint1}}</p>
-                    </li>
-                    <li>
-                        <div class="level">
-                            <span class="icon">💡</span>
-                            <span class="text">Real World Example &emsp; &emsp; </span>
-                            <button class="unlock-btn" data-hint="hint2">Unlock</button>
-                        </div>
-                        <p id="hint2" class="hidden">{{hint2}}</p>
-                    </li>
-                    <li>
-                        <div class="level">
-                            <span class="icon">💡</span>
-                            <span class="text">Self-Learning &emsp; &emsp;</span>
-                            <button class="unlock-btn" data-hint="hint3">Unlock</button>
-                        </div>
-                        <p id="hint3" class="hidden">{{hint3}}</p>
-                    </li>
-                    <li>
-                        <div class="level">
-                            <span class="icon">💡</span>
-                            <span class="text">Solution &emsp; &emsp;</span>
-                            <button class="unlock-btn" data-hint="hint4">Unlock</button>
-                        </div>
-                        <p id="hint4" class="hidden">{{hint4}}</p>
-                    </li>
-                    <li>
-                        <div class="level">
-                            <span class="icon">💡</span>
-                            <span class="text">Topic &emsp; &emsp;</span>
-                            <button class="unlock-btn" data-hint="hint5">Unlock</button>
-                        </div>
-                        <p id="hint5" class="hidden">{{hint5}}</p>
-                    </li>
-                </ul>
-            </section>
-        </main>
-    </div>
-    <script>
-        $(document).ready(function() {
-            $('#questionForm').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    type: 'POST',
-                    url: '/submit',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        $('#hint1').text(response.hint1);
-                        $('#hint2').text(response.hint2);
-                        $('#hint3').text(response.hint3);
-                        $('#hint4').text(response.hint4);
-                        $('#hint5').text(response.hint5);
-                    }
-                });
-            });
-
-            $('.unlock-btn').on('click', function() {
-                var hintId = $(this).data('hint');
-                $('#' + hintId).removeClass('hidden');
-            });
-        });
-    </script>
+    <h1>AI Coding Assistant</h1>
+    <form onsubmit="return submitForm()">
+        <textarea id="answer" name="answer" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+    <div id="result"></div>
 </body>
 </html>
